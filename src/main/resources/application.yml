@@ -1,0 +1,25 @@
+server:
+  port: 43999
+  servlet:
+    context-path: /portal
+  tomcat:
+    max-swallow-size: 2000MB
+spring:
+  jackson:
+    property-naming-strategy: CAMEL_CASE
+  servlet:
+    multipart:
+      max-file-size: 1000MB
+      max-request-size: 2000MB
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://192.168.1.97:3306/autosys_1014?serverTimezone=Asia/Shanghai&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: fastop@123
+
+docker:
+  client:
+    host_linux: tcp://192.168.1.97:2375
+    host_windows: npipe:////./pipe/docker_engine
+    api-version: 1.41
