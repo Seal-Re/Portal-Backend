@@ -12,11 +12,9 @@ import com.seal.portalbackend.utils.CommonConstants;
 import com.seal.portalbackend.utils.DockerUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -51,17 +49,22 @@ public class DockerServiceImpl implements DockerService {
         }
     }
 
-    @Autowired
-    private DockerClient dockerClient;
+    private final DockerClient dockerClient;
 
     private final ObjectMapper yamlMapper;
 
     private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
     public DockerServiceImpl(DockerClient dockerClient, @Qualifier("yamlMapper") ObjectMapper yamlMapper) {
         this.dockerClient = dockerClient;
         this.yamlMapper = yamlMapper;
+    }
+
+    private static String[] parseImageName(String imageName) {
+        if (imageName.contains(":")) {
+            return imageName.split(":", 2);
+        }
+        return new String[]{imageName, "latest"};
     }
 
     @Override
@@ -131,16 +134,9 @@ public class DockerServiceImpl implements DockerService {
         for (Map.Entry<String, String> entry : imageRenamingMap.entrySet()) {
             String newName = entry.getValue().toLowerCase(); // 目标新名 (带前缀)
 
-            String repository;
-            String tag;
-            if (newName.contains(":")) {
-                String[] parts = newName.split(":", 2);
-                repository = parts[0];
-                tag = parts[1];
-            } else {
-                repository = newName;
-                tag = "latest";
-            }
+            String[] parts = parseImageName(newName);
+            String repository = parts[0];
+            String tag = parts[1];
 
             try {
                 dockerClient.tagImageCmd(targetImageId, repository, tag).exec();
@@ -177,8 +173,9 @@ public class DockerServiceImpl implements DockerService {
             String originalName = entry.getKey();
             String newName = entry.getValue().toLowerCase();
 
-            String repository = newName.contains(":") ? newName.split(":")[0] : newName;
-            String tag = newName.contains(":") ? newName.split(":")[1] : "latest";
+            String[] parts = parseImageName(newName);
+            String repository = parts[0];
+            String tag = parts[1];
 
             try {
                 dockerClient.tagImageCmd(originalName, repository, tag).exec();
@@ -397,17 +394,9 @@ public class DockerServiceImpl implements DockerService {
         // 1. 规范化新名称 (全小写)
         String finalNewName = newImageName.toLowerCase();
 
-        // 解析 Repo 和 Tag
-        String repository;
-        String tag;
-        if (finalNewName.contains(":")) {
-            String[] parts = finalNewName.split(":", 2);
-            repository = parts[0];
-            tag = parts[1];
-        } else {
-            repository = finalNewName;
-            tag = "latest";
-        }
+        String[] parts = parseImageName(finalNewName);
+        String repository = parts[0];
+        String tag = parts[1];
 
         try {
             dockerClient.tagImageCmd(oldImageName, repository, tag).exec();
