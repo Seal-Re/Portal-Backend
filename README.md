@@ -1,8 +1,8 @@
-# Portal-Backend · Spring Boot Docker Management + File Upload Backend
+# Portal · Spring Boot + Vue 2 Docker & File Management Full-Stack
 
-> **A Spring Boot REST backend combining Docker container lifecycle management (docker-java SDK) with multi-file upload — backend for the Portal full-stack management portal.**
+> **Full-stack management portal — Spring Boot backend (docker-java SDK container management + multi-file upload) + Vue 2 frontend in `frontend/`.**
 >
-> Spring Boot 后端，集成 docker-java SDK 的容器管理 REST API 与多文件上传，为 Portal-Frontend 门户系统提供后端支持。
+> 全栈管理门户：Spring Boot 后端（docker-java SDK 容器管理 + 多文件上传）+ Vue 2 前端 (`frontend/`)。
 
 [English](#english) · [中文](#中文)
 
@@ -20,10 +20,10 @@
 
 ```mermaid
 flowchart LR
-    Frontend["Portal-Frontend\n(Vue 2)"] -->|REST| DockerController
+    Frontend["frontend/\n(Vue 2)"] -->|REST| DockerController
     Frontend -->|REST| UploaderController
 
-    subgraph Portal-Backend["Portal-Backend (Spring Boot)"]
+    subgraph Portal-Backend["Spring Boot Backend"]
         DockerController --> DockerService
         UploaderController --> UploaderService
         DockerService --> DockerClient["DockerClient\n(docker-java SDK)"]
@@ -38,8 +38,12 @@ flowchart LR
 ## Quickstart
 
 ```bash
+# Backend
 # Configure application.properties (DB, docker.host)
 mvn spring-boot:run
+
+# Frontend (Vue 2)
+cd frontend && npm install && npm run serve
 ```
 
 ### Key config
